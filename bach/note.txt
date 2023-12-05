@@ -1,0 +1,3 @@
+- Preprocess category column
++ Split into array ()
++ strip front and rear off symbol /\_ 

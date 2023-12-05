@@ -43,3 +43,21 @@ def write_list_to_file(file_path, data):
         for line in data:
             f.write(line)
             f.write('\n')
+
+def get_category(categories):
+    categories = list(set(categories))
+
+def preprocess(df):
+    l = df['requirements'].tolist()
+    tmp = []
+    for i in l:
+        try:
+            if isinstance(i, str):
+                l1 = i.split('\n')
+            else:
+                l1 = i
+            tmp += l1
+        except:
+            continue
+    docs = tmp
+    return docs
