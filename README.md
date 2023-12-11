@@ -1,17 +1,13 @@
 # HUST_DATASCIENCE_CLASS_PROJECT
 ## Folder
-    [name]: private folder for each member. Ex: bach
-    expriments: unofficial code used for experimenting
-    utils.py: helper code
-    normalized_data: processed data used for analyzing
-    data: raw data
-    tasks: code that perform a specific task
-    
-
-    
+- [name]: private folder for each member. Ex: bach
+- expriments: unofficial code used for experimenting
+- utils.py: helper code
+- normalized_data: processed data used for analyzing
+- data: raw data
+- tasks: code that perform a specific task(only for finalized code)
 
 ## Data statistics
-
 - vnw: all jobs
 - itviec: only it jobs
 - topcv: only it jobs
