@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 saved_model
+saved_model_all
+tmp/*
 # C extensions
 *.so
 
