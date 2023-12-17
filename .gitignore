@@ -7,6 +7,7 @@ saved_model_all
 tmp/*
 # C extensions
 *.so
+*.pyc
 model_checkpoint
 large_files/
 # Distribution / packaging

@@ -23,10 +23,9 @@ def plot_wordcloud(word_list, save_path=None):
         plt.show()
 
 
-def get_jobs_by_positions(jobs, positions, return_id=False):
+def get_jobs_by_type(jobs, positions, return_id=False):
     """
     jobs: list of jobs postings
-    categories: list of category for each job posting, type: string
     positions: list of  query job positions
     """
     categories = get_category_str(jobs)
@@ -68,6 +67,7 @@ def read_it_jobs_txt(path):
         data = f.readlines()
     data = [row.strip() for row in data]
     data = [row.split(">") for row in data]
+    data = [[i.strip() for i in row] for row in data]
     return data
 
 
@@ -229,3 +229,25 @@ def debug_req(reqs):
     reqs = "\n############\n".join(reqs)
     with open("req.txt", 'w') as f:
         f.write(reqs)
+
+def get_topics_by_job_type(id, job_posts, post_docs, doc_topic):
+    '''
+    return: topics dict where key: id of topic, value: count of the topic
+    '''
+    topics = []
+    for post in job_posts[id]:
+        for doc in post_docs[post]:
+            topics.append(doc_topic[doc])
+
+    freq = dict(Counter(topics))
+    freq = [{'id': k, 'count': v} for k, v in freq.items()]
+    return freq
+
+def filter_topics(topics):
+    '''
+    get top 10 topics by frequency
+    '''
+    res = sorted(topics, key=lambda x : x['count'])
+    res = [i for i in res if i['id']!=-1]
+    res = res[-30:]
+    return res
