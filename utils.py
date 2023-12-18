@@ -10,8 +10,10 @@ import numpy as np
 from underthesea import word_tokenize
 from bertopic.representation import KeyBERTInspired, MaximalMarginalRelevance, OpenAI
 import openai
-
-def plot_wordcloud(word_list, save_path=None):
+from sentence_transformers import SentenceTransformer
+from sklearn.feature_extraction.text import CountVectorizer
+from underthesea import word_tokenize
+def plot_wordcloud(word_list, save_path=None, return_counter=False):
     counter = dict(Counter(word_list))
     wc = WordCloud(background_color="white").generate_from_frequencies(counter)
     plt.figure()
@@ -21,6 +23,8 @@ def plot_wordcloud(word_list, save_path=None):
         plt.savefig(save_path)
     else:
         plt.show()
+    if return_counter:
+        return counter
 
 
 def get_jobs_by_type(jobs, positions, return_id=False):
@@ -125,11 +129,21 @@ def load_embeddings(file_path):
 def remove_multiple_spaces(text):
     return re.sub(r"\s+", " ", text)
 
-def remove_punctuation(text):
-    return re.sub(r"[^\w\s]", "", text)
+def remove_punctuation(text, replace_with_space=False):
+    if replace_with_space:
+        return re.sub(r"[^\w\s-]", " ", text)
+    else:
+        return re.sub(r"[^\w\s-]", "", text)
 
 def filter_by_length(text, min_len=4):
     return len(text.split(" ")) >= min_len
+
+def process_string(text):
+    text = text.lower()
+    text = remove_punctuation(text, replace_with_space=True)
+    text = remove_multiple_spaces(text)
+    text = text.strip()
+    return text
 
 def get_requirements(data, return_post_id=False):
     # separate by new line
@@ -251,3 +265,45 @@ def filter_topics(topics):
     res = [i for i in res if i['id']!=-1]
     res = res[-30:]
     return res
+
+def get_topics(docs, save_model_dir=None, use_gpt=False, **kwargs):
+    start_time = time.time()
+
+    vectorizer = CountVectorizer(ngram_range=(1, 2), tokenizer=word_tokenize)
+    
+    rep_models = ["keybert", {"type": "mrm", "args": {"diversity": 0.6}}]
+    if use_gpt:
+        rep_models.append("gpt")
+
+    rep_model = get_representation_model(rep_models)  
+
+    embedding_model_name = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
+    embedding_model = SentenceTransformer(embedding_model_name)
+
+
+    topic_model = BERTopic(
+            embedding_model=embedding_model,
+            vectorizer_model=vectorizer,
+            representation_model=rep_model,
+            verbose=True
+    )
+    
+    topics, _ = topic_model.fit_transform(docs)
+    if save_model_dir is not None:
+        os.makedirs(save_model_dir, exist_ok=True)
+    else:
+        save_model_dir = "large_files/topic_model"
+    topic_model.save(save_model_dir, serialization="safetensors", save_ctfidf=True)
+   
+    with open("topics.json", 'w') as f:
+        json.dump(topics, f)
+    print("Compute topic takes --- %s seconds ---" % (time.time() - start_time))
+
+import math
+def is_nan(value):
+    try:
+        if value is None:
+            return True
+        return math.isnan(float(value))
+    except:
+        return False

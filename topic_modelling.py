@@ -18,8 +18,7 @@ def get_topics():
 
     embedding_model_name = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
     embedding_model = SentenceTransformer(embedding_model_name)
-    # embeddings = embedding_model.encode(docs, show_progress_bar=True)
-    # utils.save_embeddings(embeddings, "large_files/requirement_embeddings/embeddings.npy")
+
 
     topic_model = BERTopic(
             embedding_model=embedding_model,
