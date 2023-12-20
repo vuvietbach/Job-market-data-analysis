@@ -306,4 +306,31 @@ def is_nan(value):
             return True
         return math.isnan(float(value))
     except:
-        return False
+        return 
+        
+def plot_bar(x, y, title, xlabel, ylabel, values=None, save_file=None):
+    import matplotlib.pyplot as plt
+    plt.bar(x, y)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.xticks(rotation=45, ha='right')
+    if values:
+        for i, v in enumerate(values):
+            plt.text(i, v, "{:.2f}".format(v), ha='center', va='bottom')
+    if save_file is not None:
+        plt.savefig(save_file)
+    plt.show()
+
+
+def get_numposts_per_sites():
+    posts = read_jsonl("normalized_data/it_jobs.jsonl")
+    sites = ['vietnamworks', 'itviec', 'topcv', 'vieclam24h', 'timviec365']
+    site_numposts = {}
+    for site in sites:
+        site_numposts[site] = 0
+    for post in posts:
+        for site in sites:
+            if site in post['url']:
+                site_numposts[site] += 1
+                break
