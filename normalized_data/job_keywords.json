@@ -1,0 +1,90 @@
+{
+    "architect": [
+        "architect"
+    ],
+    "database": [
+        "database"
+    ],
+    "game": [
+        "game",
+        "unity"
+    ],
+    "cloud": [
+        "cloud",
+        "devops"
+    ],
+    "support": [
+        "support",
+        "help",
+        "service"
+    ],
+    "designer": [
+        "designer",
+        "thiết kế",
+        "animator"
+    ],
+    "security": [
+        "security",
+        "an ninh",
+        "bảo mật"
+    ],
+    "test": [
+        "test",
+        "quality",
+        "qa",
+        "qc",
+        "kiểm thử"
+    ],
+    "embedded": [
+        "embedded",
+        "phần cứng",
+        "hardware",
+        "firmware",
+        "fpga"
+    ],
+    "network": [
+        "network",
+        "system",
+        "admin",
+        "mạng",
+        "linux"
+    ],
+    "data": [
+        "data",
+        "business",
+        "dữ liệu",
+        "ai",
+        "computer vision",
+        "cv",
+        "phân tích",
+        "analyst",
+        "trí tuệ nhân tạo",
+        "machine learning"
+    ],
+    "web": [
+        "web",
+        "back",
+        "front",
+        "full",
+        ".net",
+        "node",
+        "php",
+        "react"
+    ],
+    "mobile": [
+        "mobile",
+        "ios",
+        "android",
+        "flutter",
+        "react native"
+    ],
+    "dev": [
+        "dev",
+        "soft",
+        "lập trình",
+        "phần mềm",
+        "python",
+        "java",
+        "c++"
+    ]
+}

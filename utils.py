@@ -13,6 +13,8 @@ import openai
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 from underthesea import word_tokenize
+
+
 def plot_wordcloud(word_list, save_path=None, return_counter=False):
     counter = dict(Counter(word_list))
     wc = WordCloud(background_color="white").generate_from_frequencies(counter)
@@ -126,8 +128,10 @@ def load_embeddings(file_path):
         embeddings = np.load(f)
     return embeddings
 
+
 def remove_multiple_spaces(text):
     return re.sub(r"\s+", " ", text)
+
 
 def remove_punctuation(text, replace_with_space=False):
     if replace_with_space:
@@ -135,8 +139,10 @@ def remove_punctuation(text, replace_with_space=False):
     else:
         return re.sub(r"[^\w\s-]", "", text)
 
+
 def filter_by_length(text, min_len=4):
     return len(text.split(" ")) >= min_len
+
 
 def process_string(text):
     text = text.lower()
@@ -145,21 +151,19 @@ def process_string(text):
     text = text.strip()
     return text
 
+
 def get_requirements(data, return_post_id=False):
     # separate by new line
     # separate by --
     # remove punctuation
     # filte by length, minimum length 4
     def process_req(req):
-        req = req.lower()
-        req = remove_punctuation(req)
-        req = remove_multiple_spaces(req)
-        req = req.strip()
+        req = process_string(req)
         if filter_by_length(req):
             return req
         else:
             return None
-    
+
     def process(req_str):
         res = []
         reqs = req_str.split("\n")
@@ -169,7 +173,7 @@ def get_requirements(data, return_post_id=False):
             req = [i for i in req if i is not None]
             res += req
         return res
-    
+
     res = []
     req_post_id = []
     for i, row in enumerate(data):
@@ -182,19 +186,40 @@ def get_requirements(data, return_post_id=False):
     else:
         return res
 
+def get_doc_from_data(data, col_name, return_id=False):
+    def process_txt(text):
+        text = text.lower()
+        text = remove_punctuation(text)
+        text = remove_multiple_spaces(text)
+        text = text.strip()
+        if filter_by_length(text):
+            return text
+        else:
+            return None
+    def process(input):
+        res = []
+        input = input.split("\n")
+        for req in input:
+            req = req.input("--")
+            req = [process_txt(i) for i in req]
+            req = [i for i in req if i is not None]
+            res += req
+        return res
+
 def get_category_str(jobs):
     categories = []
     for job in jobs:
-        if('category' not in job):
+        if "category" not in job:
             categories.append("")
         else:
-            if(isinstance(job['category'], str)):
-                categories.append(job['category'])
-            elif(isinstance(job['category'], list)):
-                categories.append(" ".join(job['category']))
+            if isinstance(job["category"], str):
+                categories.append(job["category"])
+            elif isinstance(job["category"], list):
+                categories.append(" ".join(job["category"]))
             else:
                 categories.append("")
     return categories
+
 
 def get_representation_model(types):
     res = {}
@@ -203,17 +228,19 @@ def get_representation_model(types):
             model_type = i
             args = {}
         elif isinstance(i, dict):
-            model_type = i['type']
-            args = i['args']
-        
+            model_type = i["type"]
+            args = i["args"]
+
         assert isinstance(args, dict)
-        
-        if(model_type == "keybert"):
+
+        if model_type == "keybert":
             res[model_type] = KeyBERTInspired(**args)
-        elif(model_type == "mrm"):
+        elif model_type == "mrm":
             res[model_type] = MaximalMarginalRelevance(**args)
-        elif(model_type == 'gpt'):
-            client = openai.OpenAI(api_key="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")
+        elif model_type == "gpt":
+            client = openai.OpenAI(
+                api_key="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"
+            )
             prompt = """
             I have a topic that contains the following documents:
             [DOCUMENTS]
@@ -222,102 +249,120 @@ def get_representation_model(types):
             Based on the information above, extract a short but highly descriptive topic label of at most 5 words. Make sure it is in the following format:
             topic: <topic label>
             """
-            client = openai.OpenAI(api_key="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")
-            openai_model = OpenAI(client, model="gpt-3.5-turbo", exponential_backoff=True, chat=True, prompt=prompt)
+            client = openai.OpenAI(
+                api_key="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"
+            )
+            openai_model = OpenAI(
+                client,
+                model="gpt-3.5-turbo",
+                exponential_backoff=True,
+                chat=True,
+                prompt=prompt,
+            )
             res[model_type] = openai_model
     return res
 
+
 def save_embeddings(embeddings, path):
-    with open(path, 'wb') as f:
+    with open(path, "wb") as f:
         np.save(f, embeddings)
+
 
 def save_topic_info(topic_info, path):
     df_to_jsonl(topic_info, path)
+
 
 def debug_req(reqs):
     jobs = read_jsonl("normalized_data/it_jobs.jsonl")
     reqs = get_requirements(jobs)
     reqs1 = [(i, len(i)) for i in reqs]
-    reqs1 = sorted(reqs1, key=lambda x : x[1])
+    reqs1 = sorted(reqs1, key=lambda x: x[1])
     reqs = [i[0] for i in reqs1]
     reqs = "\n############\n".join(reqs)
-    with open("req.txt", 'w') as f:
+    with open("req.txt", "w") as f:
         f.write(reqs)
 
+
 def get_topics_by_job_type(id, job_posts, post_docs, doc_topic):
-    '''
+    """
     return: topics dict where key: id of topic, value: count of the topic
-    '''
+    """
     topics = []
     for post in job_posts[id]:
         for doc in post_docs[post]:
             topics.append(doc_topic[doc])
 
     freq = dict(Counter(topics))
-    freq = [{'id': k, 'count': v} for k, v in freq.items()]
+    freq = [{"id": k, "count": v} for k, v in freq.items()]
     return freq
 
+
 def filter_topics(topics):
-    '''
+    """
     get top 10 topics by frequency
-    '''
-    res = sorted(topics, key=lambda x : x['count'])
-    res = [i for i in res if i['id']!=-1]
+    """
+    res = sorted(topics, key=lambda x: x["count"])
+    res = [i for i in res if i["id"] != -1]
     res = res[-30:]
     return res
+
 
 def get_topics(docs, save_model_dir=None, use_gpt=False, **kwargs):
     start_time = time.time()
 
     vectorizer = CountVectorizer(ngram_range=(1, 2), tokenizer=word_tokenize)
-    
+
     rep_models = ["keybert", {"type": "mrm", "args": {"diversity": 0.6}}]
     if use_gpt:
         rep_models.append("gpt")
 
-    rep_model = get_representation_model(rep_models)  
+    rep_model = get_representation_model(rep_models)
 
-    embedding_model_name = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
+    embedding_model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     embedding_model = SentenceTransformer(embedding_model_name)
 
-
     topic_model = BERTopic(
-            embedding_model=embedding_model,
-            vectorizer_model=vectorizer,
-            representation_model=rep_model,
-            verbose=True
+        embedding_model=embedding_model,
+        vectorizer_model=vectorizer,
+        representation_model=rep_model,
+        verbose=True,
     )
-    
+
     topics, _ = topic_model.fit_transform(docs)
     if save_model_dir is not None:
         os.makedirs(save_model_dir, exist_ok=True)
     else:
         save_model_dir = "large_files/topic_model"
     topic_model.save(save_model_dir, serialization="safetensors", save_ctfidf=True)
-   
-    with open("topics.json", 'w') as f:
+
+    with open("topics.json", "w") as f:
         json.dump(topics, f)
     print("Compute topic takes --- %s seconds ---" % (time.time() - start_time))
 
+
 import math
+
+
 def is_nan(value):
     try:
         if value is None:
             return True
         return math.isnan(float(value))
     except:
-        return 
-        
+        return
+
+
 def plot_bar(x, y, title, xlabel, ylabel, values=None, save_file=None):
     import matplotlib.pyplot as plt
+
     plt.bar(x, y)
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.xticks(rotation=45, ha='right')
+    plt.xticks(rotation=45, ha="right")
     if values:
         for i, v in enumerate(values):
-            plt.text(i, v, "{:.2f}".format(v), ha='center', va='bottom')
+            plt.text(i, v, "{:.2f}".format(v), ha="center", va="bottom")
     if save_file is not None:
         plt.savefig(save_file)
     plt.show()
@@ -325,12 +370,42 @@ def plot_bar(x, y, title, xlabel, ylabel, values=None, save_file=None):
 
 def get_numposts_per_sites():
     posts = read_jsonl("normalized_data/it_jobs.jsonl")
-    sites = ['vietnamworks', 'itviec', 'topcv', 'vieclam24h', 'timviec365']
+    sites = ["vietnamworks", "itviec", "topcv", "vieclam24h", "timviec365"]
     site_numposts = {}
     for site in sites:
         site_numposts[site] = 0
     for post in posts:
         for site in sites:
-            if site in post['url']:
+            if site in post["url"]:
                 site_numposts[site] += 1
                 break
+
+
+def read_json(path):
+    with open(path, "r") as f:
+        data = json.load(f)
+    return data
+
+
+def write_json(path, data):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+class Data:
+    def __init__(self):
+        self.data = read_jsonl("normalized_data/it_jobs.jsonl")
+    
+    def get_col_values(self, col_name):
+        row_ids = []
+        res = []
+        for i, row in enumerate(self.data):
+            res += row[col_name]
+            row_ids += [i] * len(row[col_name])
+        return res, row_ids
+    
+    def get_post_by_type(self, job_type):
+        res = []
+        for i, row in enumerate(self.data):
+            if row['normalized_job'] == job_type:
+                res.append(i)
+        return res

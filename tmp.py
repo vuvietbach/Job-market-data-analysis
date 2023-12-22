@@ -1,21 +1,51 @@
-from transformers import AutoTokenizer, AutoModelForTokenClassification
-from transformers import pipeline
+import utils
 
-tokenizer = AutoTokenizer.from_pretrained("NlpHUST/vi-word-segmentation")
-model = AutoModelForTokenClassification.from_pretrained("NlpHUST/vi-word-segmentation")
+col_name = 'requirements'
+posts = utils.read_jsonl("normalized_data/it_jobs.jsonl")
+# vals1, post_id = utils.get_requirements(posts, return_post_id=True)
 
-nlp = pipeline("token-classification", model=model, tokenizer=tokenizer)
-example = "Phát biểu tại phiên thảo luận về tình hình kinh tế xã hội của Quốc hội sáng 28/10 , Bộ trưởng Bộ LĐ-TB&XH Đào Ngọc Dung khái quát , tại phiên khai mạc kỳ họp , lãnh đạo chính phủ đã báo cáo , đề cập tương đối rõ ràng về việc thực hiện các chính sách an sinh xã hội"
+def split_string(text):
+    text = text.replace('--', '\n')
+    text = text.split('\n')
+    return text
+        
+def normalize_data_by_col(data, col_name):
+    tmp = []
+    for post in data:
+        if col_name not in post:
+            post[col_name] = []
+        elif isinstance(post[col_name], str):
+            post[col_name] = split_string(post[col_name])
+            post[col_name] = [utils.process_string(b) for b in post[col_name]]
+        elif isinstance(post[col_name], list):
+            post[col_name] = [utils.process_string(b) for b in post[col_name]]
+    return data
+            
+def filter_col_value_by_len(data, col_name):
+    for post in data:
+        tmp = []
+        for val in post[col_name]:
+            if utils.filter_by_length(val):
+                tmp.append(val)
+        post[col_name] = tmp 
+    return data
+# # tmp = [doc for post in posts for doc in post[col_name]]
+# # utils.write_json('test.json', tmp)
+# utils.write_jsonl("normalized_data/it_jobs.jsonl", posts)
+posts = normalize_data_by_col(posts, col_name)
+posts = filter_col_value_by_len(posts, col_name)
 
-ner_results = nlp(example)
-example_tok = ""
-import pdb; pdb.set_trace()
-for e in ner_results:
-    if "##" in e["word"]:
-        example_tok = example_tok + e["word"].replace("##","")
-    elif e["entity"] =="I":
-        example_tok = example_tok + "_" + e["word"]
-    else:
-        example_tok = example_tok + " " + e["word"]
-print(example_tok)
+# id = []
+# for i, post in enumerate(posts):
+#     id += [i] * len(post[col_name])
 
+# print(len(id))
+# print(len(post_id))
+
+# vals = [doc for post in posts for doc in post[col_name]]
+# # utils.write_json('test.json', vals)
+
+# for i in range(len(id)):
+#     if id[i] != post_id[i]:
+#         import pdb; pdb.set_trace()
+utils.write_jsonl("normalized_data/it_jobs.jsonl", posts)

@@ -1,3 +1,9 @@
+data/
+fakedata/
+results/
+normalized_data/full_normalize_category.jsonl
+normalized_data/full.jsonl
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
