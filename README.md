@@ -52,6 +52,10 @@ The five most common job benefits are birthday presents, insurance packages, ski
 
 Below is a table listing information for five common IT positions: Web Developer, Data-related roles, UX Designer, Database-related roles, and Cloud Engineer. The table includes the 10 most commonly mentioned skills and job requirements.
 
+| Position    | Common skill requirements                                             | Common job  requirements                                                        |
+|----------|--------------------------------------------------------------|------------------------------------------------------------------------------|
+| architect | "Software Architect", "Java", "Cloud", "AWS", "Python", "DevOps", "C++", "Aws", "Solution Architecture", "Golang" | "System application performance tuning", "Infrastructure Architecture and Design", "Experienced IT Team Management", "Effective Collaboration Skills", "English proficiency in client presentations", "Agile Methodologies with Kanban", "OOP Design Patterns", "Java EE Server Architectures", "Financial Banking Experience", "Recognition of Contributions", "SQL Server and Database" |
+| cloud     | "DevOps", "Cloud", "AWS", "Linux", "Python", "Azure", "Java", "SQL", "Networking", "CI/CD" | "Security Best Practices and Ethical Hacking", "DevOps Methodology Fundamentals", "Windows and Linux Operating Systems", "Virtualization and Hypervisors", "Strong Troubleshooting Skills", "Experienced CI/CD with Jenkins Git", "Microservices Architecture Experience", "Configuration Management Automation Tools", "Networking and Routing Protocols", "AWS SysOps Architect Certification", "CICD Tools Deployment", "Database Technology Experience" |
 
 
 
